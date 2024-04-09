@@ -4,7 +4,7 @@ install.packages("tidyverse")
 library(ggplot2)
 library(tidyverse)
 
-df_assets <- read.csv("../projeto-estat/assets.csv")
+df_assets <- read.csv("assets.csv")
 df_assets <- na.omit(df_assets)
 
 nivelConfianca <- 0.95
@@ -81,3 +81,34 @@ abev_mean_return = mean(df_returns$abev) * 252
 vale_mean_return = mean(df_returns$vale) * 252
 
 volatility_returns = sqrt(cov_returns_by_year)
+
+weights = c(0.25, 0.25, 0.25, 0.25)
+expected_returns = c(petr_mean_return, wege_mean_return, abev_mean_return, vale_mean_return)
+
+portfolio_vars = function(weights) {
+  returns = expected_returns
+  cov = cov_returns_by_year
+  portfolio_return = 0
+  for(i in 1:4) {
+    portfolio_return = portfolio_return + weights[i] * returns[i]
+  }
+  
+  portfolio_risk = 0
+  for(i in 1:4) {
+    for(j in 1:4) {
+      portfolio_risk = weights[i] * weights[j] * cov[i, j]
+    }
+  }
+  
+  df_portfolio_vars = data.frame(portfolio_return, portfolio_risk)
+  return (df_portfolio_vars$portfolio_return)
+}
+
+#portfolio_vars(c(1, 1, 1, 1))
+
+#res = optim(weights, portfolio_vars,
+#            gr = NULL, method = "L-BFGS-B", 
+#            lower = rep(0, 4), 
+#            upper = rep(1, 4), 
+#            control = list(fnscale = +1),
+#            hessian = TRUE)
